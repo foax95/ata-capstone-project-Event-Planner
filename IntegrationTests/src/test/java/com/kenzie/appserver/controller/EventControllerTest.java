@@ -59,16 +59,23 @@ class EventControllerTest {
     @Test
     public void createEvent_CreateSuccessful() throws Exception {
         String event = mockNeat.strings().valStr();
+        //create in controller doesn't use id
+        //id is created and then provided by the response
 
-        CreateEventRequest createEventRequest = new CreateEventRequest();
-        createEventRequest.setEventId(event);
+        EventResponse response = new EventResponse();
+        response.setDate("02/12/2022");
+        response.setStatus("done");
+        response.setCustomerName("rachel");
+        response.setCustomerEmail("email");
+        //CreateEventRequest createEventRequest = new CreateEventRequest();
+        //createEventRequest.setEventId(event);
 
         mapper.registerModule(new JavaTimeModule());
 
         mvc.perform(post("/events")
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(mapper.writeValueAsString(createEventRequest)))
+                        .content(mapper.writeValueAsString(response)))
                 .andExpect(jsonPath("eventId")
                         .exists())
                 .andExpect(jsonPath("event")

@@ -15,10 +15,7 @@ import java.util.Arrays;
 import java.util.Collections;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class LambdaServiceTest {
@@ -33,6 +30,7 @@ class LambdaServiceTest {
     @BeforeAll
     void setup() {
         this.eventDao = mock(EventDao.class);
+        //this.eventDao = Mockito.
         this.lambdaService = new LambdaService(eventDao);
     }
 
@@ -66,7 +64,7 @@ class LambdaServiceTest {
         String id = "fakeid";
         String data = "somedata";
         EventRecord record = new EventRecord();
-        record.setId(id);
+        record.setEventId(id);
         record.setData(data);
 
 
@@ -83,7 +81,9 @@ class LambdaServiceTest {
         assertNotNull(response, "A response is returned");
         assertEquals(id, response.getEventId(), "The response id should match");
         assertEquals(data, response.getData(), "The response data should match");
+        reset(eventDao);
     }
+
 
     @Test
     void getData_emptyListFromDao_returnsNull() {

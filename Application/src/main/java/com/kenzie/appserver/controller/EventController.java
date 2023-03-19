@@ -23,23 +23,22 @@ public class EventController {
 
     private EventService eventService;
 
-    EventController(EventService eventservice){
-        this.eventService = eventService;
-    }
-
     @PostMapping
     public ResponseEntity<EventResponse> addNewEvent(@RequestBody CreateEventRequest createEvent) {
 
-        if (createEvent.getEventId() == null || createEvent.getEventId().length() == 0) {
+        /*if (createEvent.getEventId() == null || createEvent.getEventId().length() == 0) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid Event ID");
-        }
+        }*/
         EventRecord newEvent = new EventRecord();
         newEvent.setEventId(randomUUID().toString());
-        newEvent.setCustomerName(createEvent.getCustomerName().get());
         newEvent.setDate(createEvent.getDate().get());
-        newEvent.setCustomerEmail(createEvent.getCustomerEmail().get());
         newEvent.setStatus(createEvent.getStatus().get());
-
+        newEvent.setCustomerName(createEvent.getCustomerName().get());
+        newEvent.setCustomerEmail(createEvent.getCustomerEmail().get());
+        //if you want to create a response by calling a service
+        //like this
+        //EventResponse response = eventService.addNewEvent(createEvent);
+        //then just male sure you know that createEvent does not have an id 
         this.eventService.addNewEvent(newEvent);
 
         EventResponse response = this.convertToResponse(newEvent);
