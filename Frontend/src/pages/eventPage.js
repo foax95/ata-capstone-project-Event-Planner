@@ -73,7 +73,7 @@ class EventPage extends BaseClass {
         this.dataStore.set("event", createdExample);
 
         if (createdEvent) {
-            this.showMessage(`Created ${createdEvent.name}!`)
+            this.showMessage(`Created ${createdEvent.date}!`)
         } else {
             this.errorHandler("Error creating!  Try again...");
         }

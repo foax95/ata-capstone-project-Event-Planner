@@ -47,7 +47,7 @@ export default class EventClient extends BaseClass {
 
     async createEvent(customerName, customerEmail, date, status, errorCallback) {
         try {
-            const response = await this.client.post(`event`, {
+            const response = await this.client.post(`events`, {
                 customerName : customerName,
                 date : date,
                 customerEmail : customerEmail,
