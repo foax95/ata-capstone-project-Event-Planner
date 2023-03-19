@@ -25,7 +25,7 @@ public class EventController {
 
     @PostMapping
     public ResponseEntity<EventResponse> addNewEvent(@RequestBody CreateEventRequest createEvent) {
-
+       //this is probably unnecessary
         /*if (createEvent.getEventId() == null || createEvent.getEventId().length() == 0) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid Event ID");
         }*/
@@ -38,7 +38,7 @@ public class EventController {
         //if you want to create a response by calling a service
         //like this
         //EventResponse response = eventService.addNewEvent(createEvent);
-        //then just male sure you know that createEvent does not have an id 
+        //then just make sure you know that createEvent does not have an id
         this.eventService.addNewEvent(newEvent);
 
         EventResponse response = this.convertToResponse(newEvent);
