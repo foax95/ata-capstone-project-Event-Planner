@@ -23,6 +23,10 @@ public class EventController {
 
     private EventService eventService;
 
+    EventController(EventService eventService) {
+        this.eventService = eventService;
+    }
+
     @PostMapping
     public ResponseEntity<EventResponse> addNewEvent(@RequestBody CreateEventRequest createEvent) {
        //this is probably unnecessary
