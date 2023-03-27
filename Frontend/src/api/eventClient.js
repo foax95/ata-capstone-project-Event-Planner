@@ -38,7 +38,7 @@ export default class EventClient extends BaseClass {
      */
     async getEvent(id, errorCallback) {
         try {
-            const response = await this.client.get(`/event/${id}`);
+            const response = await this.client.get(`/events/${id}`);
             return response.data;
         } catch (error) {
             this.handleError("getEvent", error, errorCallback)

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kenzie.capstone.service.model.EventData;
 
 
+
 public class LambdaServiceClient {
 
     private static final String GET_EVENT_ENDPOINT = "events/{eventId}";

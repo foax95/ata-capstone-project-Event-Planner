@@ -1,5 +1,6 @@
 package com.kenzie.appserver.service;
 
+import com.kenzie.appserver.controller.model.CreateEventRequest;
 import com.kenzie.appserver.controller.model.EventResponse;
 import com.kenzie.appserver.repositories.EventRepository;
 import com.kenzie.appserver.repositories.model.EventRecord;
@@ -16,6 +17,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
+
+import static java.util.UUID.randomUUID;
 
 
 @Service
@@ -60,12 +63,11 @@ public class EventService {
 
 /**
      * Create a new event
-     * @param event Event
      * @return EventResponse
      */
-    public EventResponse addNewEvent(Event event) {
+    public EventResponse addNewEvent(CreateEventRequest e) {
 
-        if(event == null) {
+        /*if(event == null) {
             throw new NullPointerException("Event cannot be null");
         }
 
@@ -73,8 +75,15 @@ public class EventService {
 
         eventRepository.save(eventRecord);
         lambdaServiceClient.setEventData(eventRecord.getEventId());
-        return toEventResponse(eventRecord);
-
+        return toEventResponse(eventRecord);*/
+        EventRecord newRecord = new EventRecord();
+        newRecord.setEventId(randomUUID().toString());
+        newRecord.setCustomerName(e.getCustomerName().get());
+        newRecord.setCustomerEmail(e.getCustomerEmail().get());
+        newRecord.setDate(e.getDate().get());
+        newRecord.setStatus(e.getStatus().get());
+        this.lambdaServiceClient.setEventData(newRecord.getEventId());
+        return this.toEventResponse(newRecord);
     }
 
     public EventResponse update(String id, Event event) {
@@ -113,14 +122,5 @@ public class EventService {
         eventResponse.setEventId(eventRecord.getEventId());
         eventResponse.setStatus(eventRecord.getStatus());
         return eventResponse;
-    }
-    private EventRecord toEventRecord(Event event) {
-        EventRecord eventRecord = new EventRecord();
-        eventRecord.setCustomerName(event.getCustomerName());
-        eventRecord.setCustomerEmail(event.getCustomerEmail());
-        eventRecord.setDate(event.getEventDate());
-        eventRecord.setEventId(event.getEventId());
-        eventRecord.setStatus(event.getEventStatus());
-        return eventRecord;
     }
 }

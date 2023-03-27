@@ -6,6 +6,7 @@ import com.kenzie.appserver.repositories.model.EventRecord;
 import com.kenzie.appserver.service.EventService;
 
 import com.kenzie.appserver.service.model.Event;
+import com.kenzie.capstone.service.client.LambdaServiceClient;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -34,10 +35,27 @@ public class EventController {
         //EventId is not needed here because it is auto generated in the Event class
         //String id = UUID.randomUUID().toString();
 
+        /*if (createEvent.getCustomerName().get() == null || createEvent.getCustomerName().get().length() == 0 || createEvent.getCustomerEmail().get() == null || createEvent.getCustomerEmail().get().length() == 0 || createEvent.getDate().get() == null || createEvent.getDate().get().length() == 0) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid Input");
+        }
         Event event = new Event(createEvent.getCustomerName().get(), createEvent.getCustomerEmail().get(), createEvent.getDate().get(), createEvent.getStatus().get());
 
-        EventResponse response = eventService.addNewEvent(event);
-        return ResponseEntity.created(URI.create("/events/" + response.getEventId())).body(response);
+        if(event.getEventId() != null){
+            EventResponse response = eventService.addNewEvent(event);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR);
+
+        }else{
+            return ResponseEntity.status(HttpStatus.CREATED);
+        }*/
+        if(createEvent.getCustomerName().isPresent() && createEvent.getCustomerEmail().isPresent() && createEvent.getDate().isPresent()){
+            EventResponse response = this.eventService.addNewEvent(createEvent);
+            return ResponseEntity.created(URI.create("/events/" + response.getEventId())).body(response);
+        }else{
+            EventResponse emptyResponse = new EventResponse();
+            return (ResponseEntity<EventResponse>) ResponseEntity.badRequest();
+        }
+
+        //return ResponseEntity.created(URI.create("/events/" + response.getEventId())).body(response);
     }
 
     @GetMapping
@@ -65,14 +83,5 @@ public class EventController {
         return ResponseEntity.ok().build();
     }
 
-    private EventResponse convertToResponse(EventRecord event){
-        EventResponse response = new EventResponse();
-        response.setEventId(event.getEventId());
-        response.setDate(event.getDate());
-        response.setStatus(event.getStatus());
-        response.setCustomerName(event.getCustomerName());
-        response.setCustomerEmail(event.getCustomerEmail());
-        return response;
-    }
 
 }

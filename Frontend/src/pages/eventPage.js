@@ -28,14 +28,18 @@ class EventPage extends BaseClass {
 
     async renderEvent() {
         let resultArea = document.getElementById("result-info");
-
         const event = this.dataStore.get("event");
 
         if (event) {
-            resultArea.innerHTML = `
-                <div>ID: ${event.id}</div>
-                <div>Name: ${event.customerEmail}</div>
-            `
+          resultArea.innerHTML = `
+              <div class="results">
+                <h4>${event.id}</h4>
+                <p>Date: ${event.date}</p>
+                <p>Status: ${event.customerName}</p>
+                <p>ProductId: ${event.customerEmail}</p>
+                <p>Customer Name: ${event.status}</p>
+              </div>
+          `
         } else {
             resultArea.innerHTML = "No Item";
         }
@@ -57,6 +61,7 @@ class EventPage extends BaseClass {
         } else {
             this.errorHandler("Error doing GET!  Try again...");
         }
+        this.renderEvent();
     }
 
     async onCreate(event) {
@@ -78,6 +83,7 @@ class EventPage extends BaseClass {
             this.errorHandler("Error creating!  Try again...");
         }
     }
+
 }
 
 /**

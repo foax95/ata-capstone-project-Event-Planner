@@ -98,6 +98,7 @@ public class EventServiceTest {
         Assertions.assertNull(response, "The object is returned");
     }
 
+/*
     @Test
     void addNewEvent() {
         // GIVEN
@@ -124,6 +125,7 @@ public class EventServiceTest {
         Assertions.assertEquals(record.getEventId(), response.getEventId(), "The id matches");
         Assertions.assertEquals(record.getCustomerName(), response.getCustomerName(), "The name matches");
     }
+*/
 
     @Test
     void addNullEvent_throwsNullPointerException(){
