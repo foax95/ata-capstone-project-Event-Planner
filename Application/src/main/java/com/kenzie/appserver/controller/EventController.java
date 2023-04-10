@@ -4,6 +4,8 @@ import com.kenzie.appserver.controller.model.CreateEventRequest;
 import com.kenzie.appserver.controller.model.EventResponse;
 import com.kenzie.appserver.service.EventService;
 import com.kenzie.appserver.service.model.Event;
+import com.kenzie.capstone.service.client.LambdaServiceClient;
+import com.kenzie.capstone.service.model.LambdaEventRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,7 +22,6 @@ public class EventController {
     private final EventService eventService;
 
     EventController(EventService service) {
-        //Rename it to avoid confusion and any possible bugs
         this.eventService = service;
     }
     @GetMapping("/all")
