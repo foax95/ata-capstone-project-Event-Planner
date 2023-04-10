@@ -7,7 +7,11 @@ import com.kenzie.appserver.service.model.Event;
 
 
 import com.kenzie.capstone.service.client.LambdaServiceClient;
+<<<<<<< HEAD
 import com.kenzie.capstone.service.model.EventData;
+=======
+import com.kenzie.capstone.service.model.LambdaEventRequest;
+>>>>>>> origin/main
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -68,10 +72,10 @@ public class EventService {
         EventRecord eventRecord = toEventRecord(event);
 
         eventRepository.save(eventRecord);
-        lambdaServiceClient.setEventData(eventRecord.getEventId());
+        //lambdaServiceClient.addEvent(recordToLambdaRequest(eventRecord));
         return toEventResponse(eventRecord);
-
     }
+<<<<<<< HEAD
 
         public Event addNewStringEvent(String newEvent) {
             //addNewEvent in EventService returns EventRecord instead of String
@@ -93,6 +97,8 @@ public class EventService {
 
 
 
+=======
+>>>>>>> origin/main
     public EventResponse update(String id, Event event) {
         Optional<EventRecord> eventRecords = eventRepository.findById(id);
         if(eventRecords.isEmpty()) {
@@ -105,12 +111,15 @@ public class EventService {
         eventRecord.setEventId(event.getEventId());
         eventRecord.setStatus(event.getEventStatus());
         eventRecord = eventRepository.save(eventRecord);
+
         return toEventResponse(eventRecord);
     }
 
     public void deleteEvent(String id) {
         if(id != null){
             eventRepository.deleteById(id);
+        }else {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Event Not Found");
         }
     }
 
@@ -138,5 +147,14 @@ public class EventService {
         eventRecord.setEventId(event.getEventId());
         eventRecord.setStatus(event.getEventStatus());
         return eventRecord;
+    }
+    private LambdaEventRequest recordToLambdaRequest(EventRecord record) {
+        LambdaEventRequest request = new LambdaEventRequest();
+        request.setEventId(record.getEventId());
+        request.setCustomerEmail(record.getCustomerEmail());
+        request.setCustomerName(record.getCustomerName());
+        request.setDate(record.getDate());
+        request.setStatus(record.getStatus());
+        return request;
     }
 }

@@ -24,6 +24,7 @@ font-family: 'Edu NSW ACT Foundation', cursive;
 
 .header {
     /* Flexbox: https://css-tricks.com/snippets/css/a-guide-to-flexbox/ */
+    fonr-family:sans-serif;
     font-family: 'Dancing Script', cursive;
     min-height:20vh;
     /*background-color: var(--secondary-color);*/
@@ -78,6 +79,7 @@ a{
 
 
 .card {
+font-size:1.4rem;
     color: var(--text);
     background-color: var(--sections);
     margin: 10% auto;
@@ -87,6 +89,7 @@ a{
     box-shadow: 0 0 1rem 0 rgba(64, 49, 69, .6);
 }
 .card h2{
+font-size:1.3rem;
     text-align:center;
     letter-spacing: 1px;
 }
@@ -141,4 +144,9 @@ textarea{
 
 .state.active {
     display: block;
+}
+
+#result-info{
+font-size:1.4rem;
+text-align:center;
 }

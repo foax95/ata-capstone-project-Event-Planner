@@ -21,12 +21,11 @@ public class EventServiceTest {
 
     private EventRepository eventRepository;
     private EventService eventService;
-    private LambdaServiceClient lambdaServiceClient;
 
     @BeforeEach
     void setup() {
         eventRepository = mock(EventRepository.class);
-        lambdaServiceClient = mock(LambdaServiceClient.class);
+        LambdaServiceClient lambdaServiceClient = mock(LambdaServiceClient.class);
         eventService = new EventService(eventRepository, lambdaServiceClient);
     }
     /** ------------------------------------------------------------------------
@@ -225,5 +224,11 @@ public class EventServiceTest {
         //THEN
         assertThrows(ResponseStatusException.class, () -> eventService.update(id, event));
 
+    }
+
+    @Test
+    void deleteEventNullId_throwsNullPointerException(){
+        //THEN
+        assertThrows(ResponseStatusException.class, () -> eventService.deleteEvent(null));
     }
 }

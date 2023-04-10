@@ -1,59 +1,64 @@
 package com.kenzie.appserver.controller.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import javax.validation.constraints.NotEmpty;
-import java.util.Optional;
+import java.time.LocalDate;
 
-public class CreateEventRequest {
-
+public class  CreateEventRequest {
     @NotEmpty
+    @JsonProperty("eventId")
+    private String eventId;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'")
     @JsonProperty("date")
-    private Optional<String> date;
-
-    @NotEmpty
-    @JsonProperty("status")
-    private Optional<String> status;
-
+    private String date;
     @NotEmpty
     @JsonProperty("customerName")
-    private Optional<String> customerName;
+    private String customerName;
 
     @NotEmpty
     @JsonProperty("customerEmail")
-    private Optional<String> customerEmail;
+    private String customerEmail;
+
+    @NotEmpty
+    @JsonProperty("status")
+    private String status;
 
     public CreateEventRequest() {}
 
-    public Optional<String> getDate() {
+    public void setEventId(String eventId) {
+        this.eventId = eventId;
+    }
+    public String getEventId() {
+        return eventId;
+    }
+    public String getDate() {
         return date;
     }
-
-    public void setDate(Optional<String> date) {
+    public void setDate(String date) {
         this.date = date;
     }
-
-    public Optional<String> getStatus() {
+    public String getStatus() {
         return status;
     }
-
-    public void setStatus(Optional<String> status) {
+    public void setStatus(String status) {
         this.status = status;
     }
 
-    public Optional<String> getCustomerName() {
+    public void setCustomerName(String customerName) {
+        this.customerName = customerName;
+    }
+    public String getCustomerName() {
         return customerName;
     }
 
-    public void setCustomerName(Optional<String> customerName) {
-        this.customerName = customerName;
+    public void setCustomerEmail(String customerEmail) {
+        this.customerEmail = customerEmail;
     }
-
-    public Optional<String> getCustomerEmail() {
+    public String getCustomerEmail() {
         return customerEmail;
     }
 
-    public void setCustomerEmail(Optional<String> customerEmail) {
-        this.customerEmail = customerEmail;
-    }
+
 }

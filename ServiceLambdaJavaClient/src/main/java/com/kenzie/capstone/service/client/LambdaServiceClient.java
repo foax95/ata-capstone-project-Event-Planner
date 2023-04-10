@@ -3,17 +3,28 @@ package com.kenzie.capstone.service.client;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kenzie.capstone.service.model.EventData;
+import com.kenzie.capstone.service.model.LambdaEventRequest;
+import com.kenzie.capstone.service.model.LambdaEventResponse;
+
+import java.util.List;
 
 import java.util.List;
 
 
 public class LambdaServiceClient {
 
+<<<<<<< HEAD
     private static final String GET_EVENT_ENDPOINT = "events/{eventId}";
     private static final String SET_EVENT_ENDPOINT = "events";
     private static final String DELETE_EVENT_ENDPOINT = "events/delete";
+=======
+    private static final String GET_EVENT_ENDPOINT = "/events/eventId";
+    private static final String ADD_EVENT_ENDPOINT = "/events/";
+    private static final String DELETE_EVENT_ENDPOINT = "/events/eventId";
+    private static final String UPDATE_EVENT_ENDPOINT = "/events/eventId";
+>>>>>>> origin/main
 
-    private ObjectMapper mapper;
+    private final ObjectMapper mapper;
 
     public LambdaServiceClient() {
         this.mapper = new ObjectMapper();
@@ -21,7 +32,7 @@ public class LambdaServiceClient {
 
     public EventData getEventData(String eventId) {
         EndpointUtility endpointUtility = new EndpointUtility();
-        String response = endpointUtility.getEndpoint(GET_EVENT_ENDPOINT.replace("{eventId}", eventId));
+        String response = endpointUtility.getEndpoint(GET_EVENT_ENDPOINT.replace("eventId", eventId));
         EventData eventData;
         try {
             eventData = mapper.readValue(response, EventData.class);
@@ -31,16 +42,62 @@ public class LambdaServiceClient {
         return eventData;
     }
 
-    public EventData setEventData(String data) {
+    public LambdaEventResponse addEvent(LambdaEventRequest eventRequest) {
         EndpointUtility endpointUtility = new EndpointUtility();
-        String response = endpointUtility.postEndpoint(SET_EVENT_ENDPOINT, data);
-        EventData eventData;
+        String request;
         try {
-            eventData = mapper.readValue(response, EventData.class);
+            request = mapper.writeValueAsString(eventRequest);
+        } catch(JsonProcessingException e) {
+            throw new ApiGatewayException("Unable to serialize request: " + e);
+        }
+        String response = endpointUtility.postEndpoint(ADD_EVENT_ENDPOINT, request);
+        LambdaEventResponse eventResponse;
+        try {
+            eventResponse = mapper.readValue(response, LambdaEventResponse.class);
         } catch (Exception e) {
             throw new ApiGatewayException("Unable to map deserialize JSON: " + e);
         }
-        return eventData;
+        return eventResponse;
+    }
+
+    public LambdaEventResponse updateEvent(LambdaEventRequest eventRequest) {
+        EndpointUtility endpointUtility = new EndpointUtility();
+        String request;
+        try {
+            request = mapper.writeValueAsString(eventRequest);
+        } catch(JsonProcessingException e) {
+            throw new ApiGatewayException("Unable to serialize request: " + e);
+        }
+        String response = endpointUtility.putEndpoint(UPDATE_EVENT_ENDPOINT.replace("eventId", eventRequest.getEventId()), request);
+        LambdaEventResponse eventResponse;
+        try {
+            eventResponse = mapper.readValue(response, LambdaEventResponse.class);
+        } catch (Exception e) {
+            throw new ApiGatewayException("Unable to map deserialize JSON: " + e);
+        }
+        return eventResponse;
+    }
+
+    public boolean deleteEventData(List<String> eventIds) {
+        EndpointUtility endpointUtility = new EndpointUtility();
+        String request;
+
+        try{
+            request = mapper.writeValueAsString(eventIds);
+        } catch (JsonProcessingException e) {
+            throw new ApiGatewayException("Unable to serialize request: " + e);
+        }
+
+        String response = endpointUtility.postEndpoint(DELETE_EVENT_ENDPOINT, request);
+        boolean result;
+
+        try{
+            result = mapper.readValue(response, Boolean.class);
+        } catch (Exception e) {
+            throw new ApiGatewayException("Unable to deserialize JSON: " + e);
+        }
+
+        return result;
     }
 
     public boolean deleteEventData(List<String> eventIds) {
