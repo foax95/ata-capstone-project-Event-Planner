@@ -1,21 +1,22 @@
 package com.kenzie.capstone.service;
 
-import com.kenzie.capstone.service.dao.ExampleDao;
-import com.kenzie.capstone.service.model.ExampleData;
-import com.kenzie.capstone.service.model.ExampleRecord;
+import com.kenzie.capstone.service.dao.EventDao;
+import com.kenzie.capstone.service.exceptions.InvalidDataException;
+import com.kenzie.capstone.service.model.EventData;
+import com.kenzie.capstone.service.model.LambdaEventRecord;
+import com.kenzie.capstone.service.model.LambdaEventRequest;
+import com.kenzie.capstone.service.model.LambdaEventResponse;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.mockito.ArgumentCaptor;
 
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class LambdaServiceTest {
@@ -24,35 +25,33 @@ class LambdaServiceTest {
      *  expenseService.getExpenseById
      *  ------------------------------------------------------------------------ **/
 
-    private ExampleDao exampleDao;
+    private EventDao eventDao;
     private LambdaService lambdaService;
 
     @BeforeAll
     void setup() {
-        this.exampleDao = mock(ExampleDao.class);
-        this.lambdaService = new LambdaService(exampleDao);
+        this.eventDao = mock(EventDao.class);
+        this.lambdaService = new LambdaService(eventDao);
     }
 
     @Test
     void setDataTest() {
-        ArgumentCaptor<String> idCaptor = ArgumentCaptor.forClass(String.class);
-        ArgumentCaptor<String> dataCaptor = ArgumentCaptor.forClass(String.class);
+        //GIVEN
+        LambdaEventRequest eventRequest = new LambdaEventRequest();
+        eventRequest.setEventId("fakeid");
+        eventRequest.setDate("2021-01-01");
+        eventRequest.setCustomerEmail("fakeemail");
+        eventRequest.setCustomerName("fakename");
 
-        // GIVEN
-        String data = "somedata";
+        //WHEN
+        LambdaEventResponse response = this.lambdaService.addEvent(eventRequest);
 
-        // WHEN
-        ExampleData response = this.lambdaService.setExampleData(data);
-
-        // THEN
-        verify(exampleDao, times(1)).setExampleData(idCaptor.capture(), dataCaptor.capture());
-
-        assertNotNull(idCaptor.getValue(), "An ID is generated");
-        assertEquals(data, dataCaptor.getValue(), "The data is saved");
-
-        assertNotNull(response, "A response is returned");
-        assertEquals(idCaptor.getValue(), response.getId(), "The response id should match");
-        assertEquals(data, response.getData(), "The response data should match");
+        //THEN
+        assertNotNull(response);
+        assertEquals("fakeid", response.getEventId());
+        assertEquals("2021-01-01", response.getDate());
+        assertEquals("fakeemail", response.getCustomerEmail());
+        assertEquals("fakename", response.getCustomerName());
     }
 
     @Test
@@ -61,27 +60,184 @@ class LambdaServiceTest {
 
         // GIVEN
         String id = "fakeid";
-        String data = "somedata";
-        ExampleRecord record = new ExampleRecord();
-        record.setId(id);
-        record.setData(data);
+        String name = "fakename";
+        String email = "fakeemail";
+        String date = "2021-01-01";
 
+        LambdaEventRecord record = new LambdaEventRecord();
+        record.setEventId(id);
+        record.setCustomerName(name);
+        record.setCustomerEmail(email);
+        record.setDate(date);
 
-        when(exampleDao.getExampleData(id)).thenReturn(Arrays.asList(record));
+        when(eventDao.findByEventId(id)).thenReturn(List.of(record));
 
         // WHEN
-        ExampleData response = this.lambdaService.getExampleData(id);
+        EventData response = this.lambdaService.getEventData(id);
 
         // THEN
-        verify(exampleDao, times(1)).getExampleData(idCaptor.capture());
+        verify(eventDao, times(1)).findByEventId(idCaptor.capture());
 
         assertEquals(id, idCaptor.getValue(), "The correct id is used");
 
         assertNotNull(response, "A response is returned");
-        assertEquals(id, response.getId(), "The response id should match");
-        assertEquals(data, response.getData(), "The response data should match");
+        assertEquals(id, response.getEventId(), "The response id should match");
+        reset(eventDao);
+    }
+
+    @Test
+    void getData_emptyListFromDao_returnsNull() {
+        ArgumentCaptor<String> idCaptor = ArgumentCaptor.forClass(String.class);
+
+        //GIVEN
+        String id = "fakeid";
+        when(eventDao.findByEventId(id)).thenReturn(Collections.emptyList());
+
+        //WHEN
+        EventData response = this.lambdaService.getEventData(id);
+
+        //THEN
+        verify(eventDao, times(1)).findByEventId(idCaptor.capture());
+
+        assertEquals(id, idCaptor.getValue(), "The correct id is used");
+        assertNull(response, "The response should be null when an empty list is returned");
     }
 
     // Write additional tests here
+    @Test
+    void deleteDataTest() {
+        //GIVEN
+        List<String> ids = new ArrayList<>();
+        ids.add("fakeid");
+
+        LambdaEventRecord record = new LambdaEventRecord();
+        record.setEventId("fakeid");
+
+        //WHEN
+        when(eventDao.deleteEvent(record)).thenReturn(true);
+        boolean response = this.lambdaService.deleteEventData(ids);
+
+        //THEN
+        verify(eventDao, times(1)).deleteEvent(record);
+        assertTrue(response);
+    }
+
+    @Test
+    void deleteData_nullList_throwsInvalidDataException() {
+        //GIVEN
+        //WHEN && THEN
+        assertThrows(InvalidDataException.class, () -> this.lambdaService.deleteEventData(null));
+    }
+
+    @Test
+    void deleteData_nullId_throwsInvalidDataException() {
+        //GIVEN
+        List<String> ids = new ArrayList<>();
+        ids.add(null);
+
+        //WHEN && THEN
+        assertThrows(InvalidDataException.class, () -> this.lambdaService.deleteEventData(ids));
+    }
+
+    @Test
+    void deleteData_daoReturnsFalse_returnsFalse() {
+        //GIVEN
+        List<String> ids = new ArrayList<>();
+        ids.add("fakeid");
+
+        LambdaEventRecord record = new LambdaEventRecord();
+        record.setEventId("fakeid");
+
+        //WHEN
+        when(eventDao.deleteEvent(record)).thenReturn(false);
+        boolean response = this.lambdaService.deleteEventData(ids);
+
+        //THEN
+        verify(eventDao, times(1)).deleteEvent(record);
+        assertFalse(response);
+    }
+
+    @Test
+    void addNewEvent_Test() {
+        //GIVEN
+        LambdaEventRequest eventRequest = new LambdaEventRequest();
+        eventRequest.setEventId("fakeid");
+        eventRequest.setDate("2021-01-01");
+        eventRequest.setCustomerEmail("fakeemail");
+        eventRequest.setCustomerName("fakename");
+
+        //WHEN
+        LambdaEventResponse response = this.lambdaService.addEvent(eventRequest);
+
+        //THEN
+        assertNotNull(response);
+        assertEquals("fakeid", response.getEventId());
+        assertEquals("2021-01-01", response.getDate());
+        assertEquals("fakeemail", response.getCustomerEmail());
+        assertEquals("fakename", response.getCustomerName());
+    }
+
+    @Test
+    void addNewEvent_nullEventRequest_throwsInvalidDataException() {
+        //GIVEN
+
+        //WHEN && THEN
+        assertThrows(InvalidDataException.class, () -> this.lambdaService.addEvent(null));
+    }
+
+    @Test
+    void addNewEvent_nullEventId_throwsInvalidDataException() {
+        //GIVEN
+        LambdaEventRequest eventRequest = new LambdaEventRequest();
+        eventRequest.setEventId(null);
+        eventRequest.setDate("2021-01-01");
+        eventRequest.setCustomerEmail("fakeemail");
+        eventRequest.setCustomerName("fakename");
+
+        //WHEN && THEN
+        assertThrows(InvalidDataException.class, () -> this.lambdaService.addEvent(eventRequest));
+    }
+
+    @Test
+    void addNewEvent_invalidName_throwsInvalidDataException() {
+        //GIVEN
+        LambdaEventRequest eventRequest = new LambdaEventRequest();
+        eventRequest.setEventId(null);
+        eventRequest.setDate("2021-01-01");
+        eventRequest.setCustomerEmail("fakeemail");
+        eventRequest.setCustomerName("");
+
+        //WHEN && THEN
+        assertThrows(InvalidDataException.class, () -> this.lambdaService.addEvent(eventRequest));
+    }
+
+    @Test
+    void updateEvent_Test() {
+        //GIVEN
+        LambdaEventRequest eventRequest = new LambdaEventRequest();
+        eventRequest.setEventId("fakeid");
+        eventRequest.setDate("2021-01-01");
+        eventRequest.setCustomerEmail("fakeemail");
+        eventRequest.setCustomerName("fakename");
+
+
+        //WHEN
+        LambdaEventResponse response = this.lambdaService.updateEvent(eventRequest);
+
+        //THEN
+        assertNotNull(response);
+        assertEquals("fakeid", response.getEventId());
+        assertEquals("2021-01-01", response.getDate());
+        assertEquals("fakeemail", response.getCustomerEmail());
+        assertEquals("fakename", response.getCustomerName());
+    }
+
+    @Test
+    void updateEvent_nullEventRequest_throwsInvalidDataException() {
+        //GIVEN
+
+        //WHEN && THEN
+        assertThrows(InvalidDataException.class, () -> this.lambdaService.updateEvent(null));
+    }
 
 }

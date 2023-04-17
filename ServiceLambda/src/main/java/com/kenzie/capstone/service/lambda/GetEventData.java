@@ -2,7 +2,8 @@ package com.kenzie.capstone.service.lambda;
 
 import com.kenzie.capstone.service.LambdaService;
 import com.kenzie.capstone.service.dependency.ServiceComponent;
-import com.kenzie.capstone.service.model.ExampleData;
+import com.kenzie.capstone.service.exceptions.InvalidDataException;
+import com.kenzie.capstone.service.model.EventData;
 import com.kenzie.capstone.service.dependency.DaggerServiceComponent;
 
 import com.amazonaws.services.lambda.runtime.Context;
@@ -17,7 +18,7 @@ import org.apache.logging.log4j.Logger;
 import java.util.HashMap;
 import java.util.Map;
 
-public class SetExampleData implements RequestHandler<APIGatewayProxyRequestEvent, APIGatewayProxyResponseEvent> {
+public class GetEventData implements RequestHandler<APIGatewayProxyRequestEvent, APIGatewayProxyResponseEvent> {
 
     static final Logger log = LogManager.getLogger();
 
@@ -36,26 +37,26 @@ public class SetExampleData implements RequestHandler<APIGatewayProxyRequestEven
         APIGatewayProxyResponseEvent response = new APIGatewayProxyResponseEvent()
                 .withHeaders(headers);
 
-        String data = input.getBody();
+        String eventId = input.getPathParameters().get("eventId");
 
-        if (data == null || data.length() == 0) {
+        if (eventId == null || eventId.length() == 0) {
             return response
                     .withStatusCode(400)
-                    .withBody("data is invalid");
+                    .withBody("Event ID is invalid");
         }
 
         try {
-            ExampleData exampleData = lambdaService.setExampleData(data);
-            String output = gson.toJson(exampleData);
+            EventData eventData = lambdaService.getEventData(eventId);
+            String output = gson.toJson(eventData);
 
             return response
                     .withStatusCode(200)
                     .withBody(output);
 
-        } catch (Exception e) {
+        } catch (InvalidDataException e) {
             return response
                     .withStatusCode(400)
-                    .withBody(gson.toJson(e.getMessage()));
+                    .withBody(gson.toJson(e.errorPayload()));
         }
     }
 }

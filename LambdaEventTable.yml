@@ -1,14 +1,14 @@
 Resources:
-  UserTable:
+  Events:
     Type: AWS::DynamoDB::Table
     Properties:
       "AttributeDefinitions":
-        - "AttributeName": "id"
+        - "AttributeName": "eventId"
           "AttributeType": "S"
       "KeySchema":
-        - "AttributeName": "id"
+        - "AttributeName": "eventId"
           "KeyType": "HASH"
       PointInTimeRecoverySpecification:
         PointInTimeRecoveryEnabled: false
       BillingMode: PAY_PER_REQUEST
-      TableName: "LambdaExample"
+      TableName: "Events"

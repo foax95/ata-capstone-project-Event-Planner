@@ -1,8 +1,8 @@
 package com.kenzie.capstone.service.lambda;
 
 import com.kenzie.capstone.service.LambdaService;
+import com.kenzie.capstone.service.converter.JsonStringToEventConverter;
 import com.kenzie.capstone.service.dependency.ServiceComponent;
-import com.kenzie.capstone.service.model.ExampleData;
 import com.kenzie.capstone.service.dependency.DaggerServiceComponent;
 
 import com.amazonaws.services.lambda.runtime.Context;
@@ -11,18 +11,22 @@ import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyResponseEvent;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.kenzie.capstone.service.exceptions.InvalidDataException;
+import com.kenzie.capstone.service.model.LambdaEventRequest;
+import com.kenzie.capstone.service.model.LambdaEventResponse;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public class GetExampleData implements RequestHandler<APIGatewayProxyRequestEvent, APIGatewayProxyResponseEvent> {
+public class UpdateEvent implements RequestHandler<APIGatewayProxyRequestEvent, APIGatewayProxyResponseEvent> {
 
     static final Logger log = LogManager.getLogger();
 
     @Override
     public APIGatewayProxyResponseEvent handleRequest(APIGatewayProxyRequestEvent input, Context context) {
+        JsonStringToEventConverter converter = new JsonStringToEventConverter();
         GsonBuilder builder = new GsonBuilder();
         Gson gson = builder.create();
 
@@ -36,26 +40,27 @@ public class GetExampleData implements RequestHandler<APIGatewayProxyRequestEven
         APIGatewayProxyResponseEvent response = new APIGatewayProxyResponseEvent()
                 .withHeaders(headers);
 
-        String id = input.getPathParameters().get("id");
+        String data = input.getBody();
 
-        if (id == null || id.length() == 0) {
+        if (data == null || data.length() == 0) {
             return response
                     .withStatusCode(400)
-                    .withBody("Id is invalid");
+                    .withBody("data is invalid");
         }
 
         try {
-            ExampleData exampleData = lambdaService.getExampleData(id);
-            String output = gson.toJson(exampleData);
+            LambdaEventRequest eventRequest = converter.convert(data);
+            LambdaEventResponse eventData = lambdaService.updateEvent(eventRequest);
+            String output = gson.toJson(eventData);
 
             return response
                     .withStatusCode(200)
                     .withBody(output);
 
-        } catch (Exception e) {
+        } catch (InvalidDataException e) {
             return response
                     .withStatusCode(400)
-                    .withBody(gson.toJson(e.getMessage()));
+                    .withBody(gson.toJson(e.errorPayload()));
         }
     }
 }
